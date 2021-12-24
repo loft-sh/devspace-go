@@ -1,0 +1,12 @@
+
+
+# Ignore DevSpace cache and log folder
+.devspace/
+
+# Ignore IDE / Editor folders
+.idea/
+.vscode
+
+# go executables
+main
+devspace-go
