@@ -1,14 +1,21 @@
 version: v1beta11
 
+require:
+  devspace: '>= 5.0'
+  commands:
+  - name: helm
+    version: '> 3.0.0'
+  - name: kubectl
+    version: '> 1.16'
+
 vars:
 - name: IMAGE
   value: leventogut/app
 - name: IMAGE_DEBUG
   value: leventogut/go:1.16-alpine
 
-images:
-  app:
-    image: ${IMAGE}
+# `images` section removed to profile production
+# By default it is asumed to have a development/debugging environment
 
 
 
@@ -43,7 +50,8 @@ dev:
   # `dev.open` tells DevSpace to open certain URLs as soon as they return HTTP status 200
   # Since we configured port-forwarding, we can use a localhost address here to access our application
   open:
-  - url: http://localhost:8080
+  - url: http://localhost:8080 # Application port
+  - url: http://localhost:8090 # DevSpace UI
 
   # `dev.sync` configures a file sync between our Pods in k8s and your local project files
   sync:
