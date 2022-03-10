@@ -1,5 +1,4 @@
 
-
 # Ignore DevSpace cache and log folder
 .devspace/
 
@@ -10,3 +9,6 @@
 # go executables
 main
 devspace-go
+
+# environment files
+.env
