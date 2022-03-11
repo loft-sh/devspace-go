@@ -1,29 +1,21 @@
 version: v1beta11
 
+require:
+  devspace: '>= 5.0'
+  commands:
+  - name: helm
+    version: '>= 3.0.0'
+  - name: kubectl
+    version: '>= 1.16'
+
 vars:
 - name: IMAGE
   value: leventogut/app
 - name: IMAGE_DEBUG
   value: leventogut/go:1.16-alpine
 
-images:
-  app-image:
-    image: "${IMAGE}"
-    dockerfile: ./Dockerfile
-    build:
-      buildKit:
-        inCluster:
-          name: buildKit-builder
-          namespace: kube-system
-        skipPush: false
-        args:
-          - --platform
-          - linux/amd64
-          # - --cache-to
-          # - type=registry,ref=${SERVICE_IMAGE}-cache
-          # - --cache-from
-          # - type=registry,ref=${SERVICE_IMAGE}-cache
-
+# `images` section removed to profile production
+# By default it is assumed to have a development/debugging environment
 
 # `deployments` tells DevSpace how to deploy this project
 deployments:
@@ -56,7 +48,8 @@ dev:
   # `dev.open` tells DevSpace to open certain URLs as soon as they return HTTP status 200
   # Since we configured port-forwarding, we can use a localhost address here to access our application
   open:
-  - url: http://localhost:8080
+  - url: http://localhost:8080 # Application port
+  - url: http://localhost:8090 # DevSpace UI
 
   # `dev.sync` configures a file sync between our Pods in k8s and your local project files
   sync:
@@ -106,6 +99,19 @@ profiles:
 # This profile adds our image to the config so that DevSpace will build, tag and push our image before the deployment
   merge:
     images:
-      app:
-        image: ${IMAGE} # Use the value of our `${IMAGE}` variable here (see vars above)
+      app-image:
+        image: "${IMAGE}"
         dockerfile: ./Dockerfile
+        build:
+          buildKit:
+            inCluster:
+              name: buildKit-builder
+              namespace: kube-system
+            skipPush: false
+            args:
+              - --platform
+              - linux/amd64
+              # - --cache-to
+              # - type=registry,ref=${SERVICE_IMAGE}-cache
+              # - --cache-from
+              # - type=registry,ref=${SERVICE_IMAGE}-cache
