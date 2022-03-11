@@ -3,8 +3,8 @@
 .devspace/
 
 # Ignore IDE / Editor folders
-.idea/
-.vscode
+!.idea
+!.vscode
 
 # go executables
 main
