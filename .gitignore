@@ -11,5 +11,4 @@ main
 devspace-go
 
 # environment files
-# DO NOT PUT CREDENTIALS IN THIS FILE, IT IS IN GIT
-!.env
+.env

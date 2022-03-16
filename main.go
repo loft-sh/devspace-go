@@ -1,11 +1,11 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
-// main function
 func main() {
 	router := gin.Default()
 	router.GET("/ping", func(c *gin.Context) {

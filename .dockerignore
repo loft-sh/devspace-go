@@ -4,8 +4,14 @@ Dockerfile
 .git
 .gitignore
 
+.dockerignore
+
 devspace.yaml
 
 .devspace
 .vscode
+.idea
 .env
+.env.example
+
+readme.md

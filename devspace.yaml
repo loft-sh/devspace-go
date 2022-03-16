@@ -1,7 +1,8 @@
+# yaml-language-server: $schema=/home/what/somefolder/schema.json
 version: v1beta11
 
 require:
-  devspace: '>= 5.0'
+  devspace: '>= 5.0.0'
   commands:
   - name: helm
     version: '>= 3.0.0'
@@ -17,58 +18,52 @@ vars:
 # `images` section removed to profile production
 # By default it is assumed to have a development/debugging environment
 
-# `deployments` tells DevSpace how to deploy this project
+# `deployments` list of deployments to be made, can be Helm, Kubectl manifests, Kustomizations
 deployments:
 - name: app
-  # This deployment uses `helm` but you can also define `kubectl` deployments or kustomizations
   helm:
-    # We are deploying the so-called Component Chart: https://devspace.sh/component-chart/docs
     componentChart: true
-    # Under `values` we can define the values for this Helm chart used during `helm install/upgrade`
-    # You may also use `valuesFiles` to load values from files, e.g. valuesFiles: ["values.yaml"]
     values:
       containers:
       - name: app
-        image: ${IMAGE} # Use the value of our `${IMAGE}` variable here (see vars above)
+        image: ${IMAGE}
       service:
         ports:
         - port: 8080
 
-# `dev` only applies when you run `devspace dev`
+# `dev` configuration applies when you run `devspace dev`
 dev:
-  # `dev.ports` specifies all ports that should be forwarded while `devspace dev` is running
-  # Port-forwarding lets you access your application via localhost on your local machine
+  logs:
+    sync: false
+    selectors:
+    - imageSelector: ${IMAGE}
+
+  autoReload:
+    paths:
+    - devspace.yaml
+
   ports:
-  - imageSelector: ${IMAGE} # Select the Pod that runs our `${IMAGE}`
+  - imageSelector: ${IMAGE}
     forward:
     - port: 8080
-  - imageSelector: ${IMAGE} # Select the Pod that runs our `${IMAGE}`
+  - imageSelector: ${IMAGE}
     forward:
-      - port: 23450
-  # `dev.open` tells DevSpace to open certain URLs as soon as they return HTTP status 200
-  # Since we configured port-forwarding, we can use a localhost address here to access our application
+    - port: 23450
+
   open:
   - url: http://localhost:8080 # Application port
   - url: http://localhost:8090 # DevSpace UI
 
-  # `dev.sync` configures a file sync between our Pods in k8s and your local project files
   sync:
-  - imageSelector: ${IMAGE} # Select the Pod that runs our `${IMAGE}`
+  - imageSelector: ${IMAGE}
     disableDownload: true
-    excludePaths:
-    - .git/
-    uploadExcludePaths:
-    - Dockerfile
-    - .idea/
-    - .vscode
-    - main
-    - devspace-go
+    uploadExcludeFile: .dockerignore
     onUpload:
       restartContainer: true
 
   replacePods:
   - name: debug
-    imageSelector: ${IMAGE} # Select the Pod that runs our `${IMAGE}`
+    imageSelector: ${IMAGE}
     replaceImage: ${IMAGE_DEBUG}
     patches:
     - op: replace
@@ -89,14 +84,10 @@ dev:
     - op: replace
       path: spec.shareProcessNamespace
       value: true
-    
 
 # `profiles` lets you modify the config above for different environments (e.g. dev vs production)
 profiles:
-  # This profile is called `production` and you can use it for example using: devspace deploy -p production
-  # We generally recommend using the base config without any profiles as optimized for development (e.g. image build+push is disabled)
 - name: production
-# This profile adds our image to the config so that DevSpace will build, tag and push our image before the deployment
   merge:
     images:
       app-image:
